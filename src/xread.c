@@ -175,7 +175,7 @@ l_element_name_begin:
 
 l_element_name:
     node.len = (int32_t)(c - node.cstr);
-    cb(xr_type_element, node, nil);
+    cb(xr_type_element_start, node, nil);
     go = go_attrib;
     goto *go[*c];
 

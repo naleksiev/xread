@@ -4,15 +4,9 @@
 
 void handler(xr_type type, xr_str name, xr_str val) {
     switch (type) {
-        case xr_type_element:
+        case xr_type_element_start:
         case xr_type_element_end:
         case xr_type_attribute:
-        case xr_type_cdata:
-        case xr_type_comment:
-        case xr_type_doctype:
-        case xr_type_proc_instr:
-        case xr_type_text:
-        case xr_type_xml_decl:
             return;
         case xr_type_error:
             exit(1);

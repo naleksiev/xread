@@ -14,15 +14,9 @@ extern "C" {
 
 typedef enum xr_type {
     xr_type_attribute,
-    xr_type_cdata,
-    xr_type_comment,
-    xr_type_doctype,
-    xr_type_element,
+    xr_type_element_start,
     xr_type_element_end,
     xr_type_error,
-    xr_type_proc_instr,
-    xr_type_text,
-    xr_type_xml_decl,
 } xr_type;
 
 typedef struct xr_str {
