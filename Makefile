@@ -1,11 +1,12 @@
-test.o: test/test.c src/xread.h src/xread.c
-	gcc test/test.c src/xread.c -o test.o
+.build/test.o: test/test.c src/xread.h src/xread.c
+	mkdir -p .build
+	gcc test/test.c src/xread.c -o .build/test.o
 
-all: test.o
+all: .build/test.o
 
 clean:
-	rm -f test.o
+	rm -Rf .build
 
-test: test.o
-	@if ./test.o ; then echo "PASSED"; else echo "FAILED"; exit 1; fi;
+test: .build/test.o
+	@if .build/test.o ; then echo "PASSED"; else echo "FAILED"; exit 1; fi;
 
