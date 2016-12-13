@@ -1,3 +1,8 @@
+/*
+ * Copyright 2016 Nikolay Aleksiev. All rights reserved.
+ * License: https://github.com/naleksiev/xread/blob/master/LICENSE
+ */
+
 #include "xread.h"
 
 #include <stdio.h>
