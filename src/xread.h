@@ -24,7 +24,7 @@ typedef struct xr_str {
     int32_t     len;
 } xr_str;
 
-typedef void (*xr_callback)(xr_type type, xr_str name, xr_str value);
+typedef void (*xr_callback)(xr_type type, const xr_str* name, const xr_str* value);
 
 void xr_read(xr_callback cb, const char* doc);
 
