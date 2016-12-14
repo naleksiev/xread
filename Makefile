@@ -7,6 +7,6 @@ all: .build/test.o
 clean:
 	rm -Rf .build
 
-test: .build/test.o
+run: .build/test.o
 	@if .build/test.o ; then echo "PASSED"; else echo "FAILED"; exit 1; fi;
 
