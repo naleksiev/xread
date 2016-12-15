@@ -1,6 +1,5 @@
 /*
- * Copyright 2016 Nikolay Aleksiev. All rights reserved.
- * License: https://github.com/naleksiev/xread/blob/master/LICENSE
+ * Copyright 2016 Nikolay Aleksiev. All rights reserved.  * License: https://github.com/naleksiev/xread/blob/master/LICENSE
  */
 
 #ifndef __XREAD_H__
@@ -24,9 +23,9 @@ typedef struct xr_str {
     int32_t     len;
 } xr_str;
 
-typedef void (*xr_callback)(xr_type type, const xr_str* name, const xr_str* value);
+typedef void (*xr_callback)(xr_type type, const xr_str* name, const xr_str* value, void* user_data);
 
-void xr_read(xr_callback cb, const char* doc);
+void xr_read(xr_callback cb, const char* doc, void* user_data);
 
 #ifdef __cplusplus
 }

@@ -3,7 +3,7 @@
 #include <time.h>
 #include "../src/xread.h"
 
-void handler(xr_type type, const xr_str* name, const xr_str* val) {
+void handler(xr_type type, const xr_str* name, const xr_str* val, void* user_data) {
     switch (type) {
         case xr_type_element_start:
         case xr_type_element_end:
@@ -29,7 +29,7 @@ int main() {
     buffer[size] = '\0';
     fclose(fp);
     clock_t start = clock();
-    xr_read(&handler, buffer);
+    xr_read(&handler, buffer, NULL);
     printf("%.4f\n", (double)(clock() - start) / CLOCKS_PER_SEC);
     free(buffer);
 }
