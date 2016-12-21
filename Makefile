@@ -1,6 +1,6 @@
 .build/test.o: test/test.c src/xread.h src/xread.c
 	mkdir -p .build
-	gcc -Os test/test.c src/xread.c -o .build/test.o
+	$(CC) -Os test/test.c src/xread.c -o .build/test.o
 
 all: .build/test.o
 
