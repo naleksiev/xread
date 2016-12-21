@@ -15,7 +15,9 @@ void handler(xr_type type, const xr_str* name, const xr_str* val, void* user_dat
     }
 }
 
-int main() {
+int main(int argc, char *argv[]) {
+    if (argc != 2)
+        return 1;
     FILE* fp = fopen("test/test.xml", "rb");
     if (!fp)
         return 1;
