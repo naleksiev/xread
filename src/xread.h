@@ -2,8 +2,8 @@
  * Copyright 2016 Nikolay Aleksiev. All rights reserved.  * License: https://github.com/naleksiev/xread/blob/master/LICENSE
  */
 
-#ifndef __XREAD_H__
-#define __XREAD_H__
+#ifndef XREAD_H
+#define XREAD_H
 
 #include <stdint.h>
 
@@ -31,5 +31,4 @@ void xr_read(xr_callback cb, const char* doc, void* user_data);
 }
 #endif
 
-#endif //#ifndef __XREAD_H__
-
+#endif //#ifndef XREAD_H
