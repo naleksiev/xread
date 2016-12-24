@@ -6,8 +6,13 @@
 void handler(xr_type type, const xr_str* name, const xr_str* val, void* user_data) {
     switch (type) {
         case xr_type_element_start:
+            printf("<%.*s>\n", name->len, name->cstr);
+            return;
         case xr_type_element_end:
+            printf("</%.*s>\n", name->len, name->cstr);
+            return;
         case xr_type_attribute:
+            printf("%.*s=\"%.*s\"\n", name->len, name->cstr, val->len, val->cstr);
             return;
         case xr_type_error:
             exit(1);

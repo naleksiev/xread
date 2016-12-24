@@ -5,11 +5,8 @@
 
 #include "xread.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-
-#define XR_DISPATCH_NEXT()    goto *go[*(c = cstr++)]
-#define XR_DISPATCH_THIS()    goto *go[*c];
+#define XR_DISPATCH_NEXT()    goto *go[(uint8_t)*cstr++]
+#define XR_DISPATCH_THIS()    goto *go[(uint8_t)cstr[-1]];
 
 void xr_read(xr_callback cb, const char* cstr, void* user_data) {
     static void* go_root[] = {
@@ -27,34 +24,39 @@ void xr_read(xr_callback cb, const char* cstr, void* user_data) {
     };
 
     static void* go_name[] = {
-        [0 ... 44]    = &&l_name,
+        [0 ... 44]    = &&l_name_end,
         ['-']         = &&l_next,
         ['.']         = &&l_next,
-        [47 ... 47]   = &&l_name,
+        [47 ... 47]   = &&l_name_end,
         ['0' ... '9'] = &&l_next,
-        [58 ... 94]   = &&l_name,
+        [58 ... 64]   = &&l_name_end,
+        ['A' ... 'Z'] = &&l_next,
+        [91 ... 94]   = &&l_name_end,
         ['_']         = &&l_next,
-        [96 ... 96]   = &&l_name,
+        [96 ... 96]   = &&l_name_end,
         ['a' ... 'z'] = &&l_next,
-        [123 ... 255] = &&l_name,
+        [123 ... 255] = &&l_name_end,
     };
 
-    static void* go_tag[] = {
-        [0 ... 8]     = &&l_error,
-        ['\t']        = &&l_next,
-        ['\n']        = &&l_next,
-        [11 ... 12]   = &&l_error,
-        ['\r']        = &&l_next,
-        [14 ... 31]   = &&l_error,
-        [' ']         = &&l_next,
-        [33 ... 46]   = &&l_error,
-        ['/']         = &&l_element_end,
+    static void* go_stag[] = {
+        [0 ... 46]    = &&l_error,
+        ['/']         = &&l_etag,
         [48 ... 64]   = &&l_error,
-        ['A' ... 'Z'] = &&l_element_name_begin,
+        ['A' ... 'Z'] = &&l_name_begin,
         [91 ... 94]   = &&l_error,
-        ['_']         = &&l_element_name_begin,
+        ['_']         = &&l_name_begin,
         [96 ... 96]   = &&l_error,
-        ['a' ... 'z'] = &&l_element_name_begin,
+        ['a' ... 'z'] = &&l_name_begin,
+        [123 ... 255] = &&l_error,
+    };
+
+    static void* go_etag[] = {
+        [0 ... 64]    = &&l_error,
+        ['A' ... 'Z'] = &&l_name_begin,
+        [91 ... 94]   = &&l_error,
+        ['_']         = &&l_name_begin,
+        [96 ... 96]   = &&l_error,
+        ['a' ... 'z'] = &&l_name_begin,
         [123 ... 255] = &&l_error,
     };
 
@@ -62,23 +64,6 @@ void xr_read(xr_callback cb, const char* cstr, void* user_data) {
         [0 ... 61]    = &&l_error,
         ['>']         = &&l_tag_end,
         [63 ... 255]  = &&l_error,
-    };
-
-    static void* go_element_end[] = {
-        [0 ... 8]     = &&l_error,
-        ['\t']        = &&l_next,
-        ['\n']        = &&l_next,
-        [11 ... 12]   = &&l_error,
-        ['\r']        = &&l_next,
-        [14 ... 31]   = &&l_error,
-        [' ']         = &&l_next,
-        [33 ... 64]   = &&l_error,
-        ['A' ... 'Z'] = &&l_element_end_name_begin,
-        [91 ... 94]   = &&l_error,
-        ['_']         = &&l_element_end_name_begin,
-        [96 ... 96]   = &&l_error,
-        ['a' ... 'z'] = &&l_element_end_name_begin,
-        [123 ... 255] = &&l_error,
     };
 
     static void* go_attrib[] = {
@@ -90,15 +75,15 @@ void xr_read(xr_callback cb, const char* cstr, void* user_data) {
         [14 ... 31]   = &&l_error,
         [' ']         = &&l_next,
         [33 ... 46]   = &&l_error,
-        ['/']         = &&l_element_empty,
+        ['/']         = &&l_empty_element_tag,
         [48 ... 61]   = &&l_error,
         ['>']         = &&l_tag_end,
         [63 ... 64]   = &&l_error,
-        ['A' ... 'Z'] = &&l_attrib_name_begin,
+        ['A' ... 'Z'] = &&l_attrib,
         [91 ... 94]   = &&l_error,
-        ['_']         = &&l_attrib_name_begin,
+        ['_']         = &&l_attrib,
         [96 ... 96]   = &&l_error,
-        ['a' ... 'z'] = &&l_attrib_name_begin,
+        ['a' ... 'z'] = &&l_attrib,
         [123 ... 255] = &&l_error,
     };
 
@@ -124,31 +109,29 @@ void xr_read(xr_callback cb, const char* cstr, void* user_data) {
         [14 ... 31]   = &&l_error,
         [' ']         = &&l_next,
         [33]          = &&l_error,
-        ['"']         = &&l_attrib_val_begin_double,
+        ['"']         = &&l_attrib_val_double,
         [35 ... 38]   = &&l_error,
-        ['\'']        = &&l_attrib_val_begin_single,
+        ['\'']        = &&l_attrib_val_single,
         [40 ... 255]  = &&l_error,
     };
 
     static void* go_attrib_val_single[] = {
         [0 ... 31]    = &&l_error,
-        [32 ... 33]   = &&l_next,
-        ['\"']        = &&l_attrib_val_end,
-        [35 ... 255]  = &&l_next,
+        [32 ... 38]   = &&l_next,
+        ['\'']        = &&l_attrib_val,
+        [40 ... 255]  = &&l_next,
     };
 
     static void* go_attrib_val_double[] = {
         [0 ... 31]    = &&l_error,
         [32 ... 33]   = &&l_next,
-        ['"']         = &&l_attrib_val_end,
+        ['"']         = &&l_attrib_val,
         [35 ... 255]  = &&l_next,
     };
 
     xr_str tag  = { .cstr = 0, .len = 0 };
     xr_str name = { .cstr = 0, .len = 0 };
     xr_str val  = { .cstr = 0, .len = 0 };
-
-    const char* c = NULL;
 
     void** go = go_root;
     void*  name_handle = 0;
@@ -158,62 +141,57 @@ l_next:
 
 l_error:
     name = (xr_str){ .cstr = "Error!", .len = 6 };
-    val = (xr_str){ .cstr = c, .len = 1 };
+    val = (xr_str){ .cstr = cstr - 1, .len = 1 };
     cb(xr_type_error, &name, &val, user_data);
     return;
 
-l_name:
+l_name_begin:
+    tag.cstr = cstr - 1;
+    go = go_name;
+    XR_DISPATCH_NEXT();
+
+l_name_end:
     goto *name_handle;
 
 l_tag:
-    go = go_tag;
+    name_handle = &&l_stag_name;
+    go = go_stag;
+    XR_DISPATCH_NEXT();
+
+l_etag:
+    name_handle = &&l_etag_name;
+    go = go_etag;
     XR_DISPATCH_NEXT();
 
 l_tag_end:
     go = go_root;
     XR_DISPATCH_NEXT();
 
-l_element_name_begin:
-    tag.cstr = c;
-    name_handle = &&l_element_name;
-    go = go_name;
-    XR_DISPATCH_NEXT();
-
-l_element_name:
-    tag.len = (int32_t)(c - tag.cstr);
-    cb(xr_type_element_start, &tag, NULL, user_data);
+l_stag_name:
+    tag.len = (int32_t)(cstr - 1 - tag.cstr);
+    cb(xr_type_element_start, &tag, 0, user_data);
     go = go_attrib;
     XR_DISPATCH_THIS();
 
-l_element_empty:
-    cb(xr_type_element_end, &tag, NULL, user_data);
-    go = go_tag_close;
-    XR_DISPATCH_NEXT();
-
-l_element_end:
-    go = go_element_end;
-    XR_DISPATCH_NEXT();
-
-l_element_end_name_begin:
-    tag.cstr = c;
-    name_handle = &&l_element_end_name;
-    go = go_name;
-    XR_DISPATCH_NEXT();
-
-l_element_end_name:
-    tag.len = (int32_t)(c - tag.cstr);
-    cb(xr_type_element_end, &tag, NULL, user_data);
+l_etag_name:
+    tag.len = (int32_t)(cstr - 1 - tag.cstr);
+    cb(xr_type_element_end, &tag, 0, user_data);
     go = go_tag_close;
     XR_DISPATCH_THIS();
 
-l_attrib_name_begin:
-    name.cstr = c;
+l_empty_element_tag:
+    cb(xr_type_element_end, &tag, 0, user_data);
+    go = go_tag_close;
+    XR_DISPATCH_NEXT();
+
+l_attrib:
+    name.cstr = cstr - 1;
     name_handle = &&l_attrib_name;
     go = go_name;
     XR_DISPATCH_NEXT();
 
 l_attrib_name:
-    name.len = (int32_t)(c - name.cstr);
+    name.len = (int32_t)(cstr - 1 - name.cstr);
     go = go_attrib_eq;
     XR_DISPATCH_THIS();
 
@@ -221,18 +199,18 @@ l_attrib_eq:
     go = go_attrib_val_begin;
     XR_DISPATCH_NEXT();
 
-l_attrib_val_begin_single:
+l_attrib_val_single:
     val.cstr = cstr;
     go = go_attrib_val_single;
     XR_DISPATCH_NEXT();
 
-l_attrib_val_begin_double:
+l_attrib_val_double:
     val.cstr = cstr;
     go = go_attrib_val_double;
     XR_DISPATCH_NEXT();
 
-l_attrib_val_end:
-    val.len = (int32_t)(c - val.cstr);
+l_attrib_val:
+    val.len = (int32_t)(cstr - 1 - val.cstr);
     cb(xr_type_attribute, &name, &val, user_data);
     go = go_attrib;
     XR_DISPATCH_NEXT();
