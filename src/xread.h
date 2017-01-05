@@ -1,5 +1,6 @@
 /*
- * Copyright 2016 Nikolay Aleksiev. All rights reserved.  * License: https://github.com/naleksiev/xread/blob/master/LICENSE
+ * Copyright 2016-2017 Nikolay Aleksiev. All rights reserved.
+ * License: https://github.com/naleksiev/xread/blob/master/LICENSE
  */
 
 #ifndef XREAD_H
