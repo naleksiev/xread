@@ -8,7 +8,7 @@
 #include <time.h>
 #include "../src/xread.h"
 
-void handler(xr_type type, const xr_str* name, const xr_str* val, void* user_data) {
+void handler(xr_type_t type, const xr_str_t* name, const xr_str_t* val, void* user_data) {
     switch (type) {
         case xr_type_element_start:
             printf("<%.*s>\n", name->len, name->cstr);

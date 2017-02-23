@@ -129,19 +129,19 @@ void xr_read(xr_callback cb, const char* cstr, void* user_data) {
         [35 ... 255]  = &&l_next,
     };
 
-    xr_str tag  = { .cstr = 0, .len = 0 };
-    xr_str name = { .cstr = 0, .len = 0 };
-    xr_str val  = { .cstr = 0, .len = 0 };
+    xr_str_t tag  = { .cstr = 0, .len = 0 };
+    xr_str_t name = { .cstr = 0, .len = 0 };
+    xr_str_t val  = { .cstr = 0, .len = 0 };
 
-    void** go = go_root;
-    void*  name_handle = 0;
+    void**   go = go_root;
+    void*    name_handle = 0;
 
 l_next:
     XR_DISPATCH_NEXT();
 
 l_error:
-    name = (xr_str){ .cstr = "Error!", .len = 6 };
-    val = (xr_str){ .cstr = cstr - 1, .len = 1 };
+    name = (xr_str_t){ .cstr = "Error!", .len = 6 };
+    val = (xr_str_t){ .cstr = cstr - 1, .len = 1 };
     cb(xr_type_error, &name, &val, user_data);
     return;
 
