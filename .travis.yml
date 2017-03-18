@@ -6,3 +6,6 @@ compiler:
 os:
  - linux
  - osx
+env:
+ - CFLAGS=-m32
+ - CFLAGS=-m64
