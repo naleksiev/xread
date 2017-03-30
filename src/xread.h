@@ -12,14 +12,14 @@
 extern "C" {
 #endif
 
-typedef enum xr_type_t {
+typedef enum xr_type {
     xr_type_attribute,
     xr_type_element_start,
     xr_type_element_end,
     xr_type_error,
 } xr_type_t;
 
-typedef struct xr_str_t {
+typedef struct xr_str {
     const char* cstr;
     int32_t     len;
 } xr_str_t;
