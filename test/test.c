@@ -8,18 +8,19 @@
 #include <time.h>
 #include "../src/xread.h"
 
-void handler(xr_type_t type, const xr_str_t* name, const xr_str_t* val, void* user_data) {
+void handler(xr_type_t type, const xr_str_t* tag, const xr_str_t* name, const xr_str_t* val, void* user_data) {
     switch (type) {
         case xr_type_element_start:
-            printf("<%.*s>\n", name->len, name->cstr);
+            printf("<%.*s>\n", tag->len, tag->cstr);
             return;
         case xr_type_element_end:
-            printf("</%.*s>\n", name->len, name->cstr);
+            printf("</%.*s>(%.*s)\n", tag->len, tag->cstr, val->len, val->cstr);
             return;
         case xr_type_attribute:
-            printf("%.*s=\"%.*s\"\n", name->len, name->cstr, val->len, val->cstr);
+            printf("%.*s:\"%.*s\"=\"%.*s\"\n", tag->len, tag->cstr, name->len, name->cstr, val->len, val->cstr);
             return;
         case xr_type_error:
+            printf("! %.*s:%.*s=\"%.*s\"\n", tag->len, tag->cstr, name->len, name->cstr, val->len, val->cstr);
             exit(1);
             return;
     }
@@ -28,7 +29,7 @@ void handler(xr_type_t type, const xr_str_t* name, const xr_str_t* val, void* us
 int main(int argc, char *argv[]) {
     if (argc != 2)
         return 1;
-    FILE* fp = fopen("test/test.xml", "rb");
+    FILE* fp = fopen(argv[1], "rb");
     if (!fp)
         return 1;
     fseek(fp, 0, SEEK_END);
